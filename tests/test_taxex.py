@@ -43,3 +43,43 @@ def test_calculate_tax_invalid_price(price):
 def test_calculate_tax_invalid_price(tax_rate):
     with pytest.raises(ValueError):
         calculate_tax(100, tax_rate)
+
+
+@pytest.mark.parametrize("discount, expected", [(0, 110),
+                                                (10, 99),
+                                                (100, 0),
+                                                ])
+def test_calculate_tax_with_discount(discount, expected):
+    assert calculate_tax(100, 10, discount=discount) == expected
+
+
+def test_calculate_tax_no_discount():
+    assert calculate_tax(100, 10) == 110.0
+
+
+@pytest.mark.parametrize("round_digits, expected", [(0, 99),
+                                                    (1, 99.4),
+                                                    (2, 99.42)
+                                                    ])
+def test_calculate_tax_round_digits(round_digits, expected):
+    assert calculate_tax(100, 2.5, discount=3, round_digits=round_digits) == expected
+
+
+def test_calculate_tax_no_round_digits():
+    assert calculate_tax(100, 2.5, discount=3) == 99.42
+
+
+@pytest.mark.parametrize("price, tax_rate, discount, round_digits", [('100', 2.5, 3, 1),
+                                                                     (100, '2.5', 3, 1),
+                                                                     (100, 2.5, '3', 1),
+                                                                     (100, 2.5, 3, '1'),
+                                                                     ])
+def test_calculate_tax_check_int_or_float(price, tax_rate, discount, round_digits):
+    with pytest.raises(TypeError):
+        calculate_tax(price, tax_rate, discount=discount, round_digits=round_digits)
+
+
+def test_calculate_tax_only_wkargs():
+    with pytest.raises(TypeError):
+        calculate_tax(100, 10, 5, 2)
+
